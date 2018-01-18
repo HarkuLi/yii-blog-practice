@@ -1,1 +1,4 @@
 /vendor/
+/protected/runtime/
+/assets/
+/themes/classic/views/
