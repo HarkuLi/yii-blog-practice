@@ -97,8 +97,39 @@ class Lookup extends CActiveRecord
      * @param string $className active record class name.
      * @return Lookup the static model class
      */
-    public static function model($className=__CLASS__)
+    public static function model($className = __CLASS__)
     {
         return parent::model($className);
     }
+
+    public static function items($type)
+    {
+        if (!isset(self::$items[$type])) {
+            self::loadItems($type);
+        }
+        return self::$items[$type];
+    }
+
+    public static function item($type, $code)
+    {
+        if (!isset(self::$items[$type])) {
+            self::loadItems($type);
+        }
+        return self::$items[$type][$code] ?? false;
+    }
+
+    private static function loadItems($type)
+    {
+        self::$item[$type] = [];
+        $models = self::model()->findAll([
+            'condition' => 'type=:type',
+            'params' => [':type' => $type],
+            'order' => 'position',
+        ]);
+        foreach ($models as $model) {
+            self::$items[$type][$model->code] = $model->name;
+        }
+    }
+
+    private static $items = [];
 }
