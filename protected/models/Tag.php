@@ -105,4 +105,41 @@ class Tag extends CActiveRecord
     {
         return implode(', ', $tags);
     }
+
+    public function updateFrequency($oldTags, $newTags)
+    {
+        $oldTags=self::string2array($oldTags);
+        $newTags=self::string2array($newTags);
+        // use array_values() to reindex
+        $this->addTags(array_values(array_diff($newTags, $oldTags)));
+        $this->removeTags(array_values(array_diff($oldTags, $newTags)));
+    }
+
+    public function addTags($tags)
+    {
+        // update all tags in db and in $tags with incresing frequency by 1
+        $criteria=new CDbCriteria;
+        $criteria->addInCondition('name', $tags);
+        $this->updateCounters(array('frequency'=>1), $criteria);
+        // create tags that aren't in db
+        foreach ($tags as $name) {
+            if (!$this->exists('name=:name', array(':name'=>$name))) {
+                $tag=new Tag;
+                $tag->name=$name;
+                $tag->frequency=1;
+                $tag->save();
+            }
+        }
+    }
+
+    public function removeTags($tags)
+    {
+        if (empty($tags)) {
+            return;
+        }
+        $criteria=new CDbCriteria;
+        $criteria->addInCondition('name', $tags);
+        $this->updateCounters(array('frequency'=>-1), $criteria);
+        $this->deleteAll('frequency<=0');
+    }
 }
