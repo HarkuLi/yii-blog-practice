@@ -168,5 +168,13 @@ class Post extends CActiveRecord
         $this->oldTags = $this->tags;
     }
 
+    protected function afterDelete()
+    {
+        parent::afterDelete();
+        // This line of code will be done by constraint setting of DBMS
+        // Comment::model()->deleteAll('post_id='.$this->id);
+        Tag::model()->updateFrequency($this->tags, '');
+    }
+
     private $oldTags;
 }
