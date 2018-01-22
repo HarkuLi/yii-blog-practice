@@ -14,7 +14,12 @@ $this->menu=array(
 
 <h1>Posts</h1>
 
+<?php if (!empty($_GET['tag'])) : ?>
+<h1><i><?= CHtml::encode($_GET['tag']) ?></i>
+<?php endif; ?>
+
 <?php $this->widget('zii.widgets.CListView', array(
     'dataProvider'=>$dataProvider,
     'itemView'=>'_view',
+    'template'=>"{items}\n{pager}"
 )); ?>

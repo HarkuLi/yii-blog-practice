@@ -42,12 +42,12 @@ class PostController extends Controller
 
     /**
      * Displays a particular model.
-     * @param integer $id the ID of the model to be displayed
      */
-    public function actionView($id)
+    public function actionView()
     {
+        $post = $this->loadModel();
         $this->render('view', array(
-            'model'=>$this->loadModel($id),
+            'model' => $post,
         ));
     }
 
@@ -79,9 +79,9 @@ class PostController extends Controller
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id the ID of the model to be updated
      */
-    public function actionUpdate($id)
+    public function actionUpdate()
     {
-        $model=$this->loadModel($id);
+        $model = $this->loadModel();
 
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
@@ -118,7 +118,22 @@ class PostController extends Controller
      */
     public function actionIndex()
     {
-        $dataProvider=new CActiveDataProvider('Post');
+        $criteria = new CDbCriteria([
+            'condition' => 'status='.Post::STATUS_PUBLISHED,
+            'order' => 'update_time DESC',
+            'with' => 'commentCount',
+        ]);
+        if (isset($_GET['tag'])) {
+            $criteria->addSearchCondition('tags', $_GET['tag']);
+        }
+
+        $dataProvider = new CActiveDataProvider('Post', [
+            'pagination' => [
+                'pageSize' => 5
+            ],
+            'criteria' => $criteria
+        ]);
+
         $this->render('index', array(
             'dataProvider'=>$dataProvider,
         ));
@@ -143,17 +158,26 @@ class PostController extends Controller
     /**
      * Returns the data model based on the primary key given in the GET variable.
      * If the data model is not found, an HTTP exception will be raised.
-     * @param integer $id the ID of the model to be loaded
      * @return Post the loaded model
      * @throws CHttpException
      */
-    public function loadModel($id)
+    public function loadModel()
     {
-        $model=Post::model()->findByPk($id);
-        if ($model===null) {
-            throw new CHttpException(404, 'The requested page does not exist.');
+        if ($this->model === null) {
+            if (isset($_GET['id'])) {
+                if (Yii::app()->user->isGuest) {
+                    $condition = 'status='.Post::STATUS_PUBLISHED
+                        .' OR status='.Post::STATUS_ARCHIVED;
+                } else {
+                    $condition = '';
+                }
+                $this->model = Post::model()->findByPk($_GET['id'], $condition);
+            }
+            if ($this->model === null) {
+                throw new CHttpException(404, 'The requested page does not exist.');
+            }
         }
-        return $model;
+        return $this->model;
     }
 
     /**
@@ -167,4 +191,6 @@ class PostController extends Controller
             Yii::app()->end();
         }
     }
+
+    private $model;
 }
