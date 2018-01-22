@@ -36,14 +36,12 @@ class Comment extends CActiveRecord
     {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
-        return array(
-            array('content, status, author, email, post_id', 'required'),
-            array('status, create_time, post_id', 'numerical', 'integerOnly'=>true),
-            array('author, email, url', 'length', 'max'=>128),
-            // The following rule is used by search().
-            // @todo Please remove those attributes that should not be searched.
-            array('id, content, status, create_time, author, email, url, post_id', 'safe', 'on'=>'search'),
-        );
+        return [
+            ['content, author, email', 'required'],
+            ['author, email, url', 'length', 'max'=>128],
+            ['email', 'email'],
+            ['url', 'url']
+        ];
     }
 
     /**
@@ -64,13 +62,13 @@ class Comment extends CActiveRecord
     public function attributeLabels()
     {
         return array(
-            'id' => 'ID',
-            'content' => 'Content',
+            'id' => 'Id',
+            'content' => 'Comment',
             'status' => 'Status',
             'create_time' => 'Create Time',
-            'author' => 'Author',
+            'author' => 'Name',
             'email' => 'Email',
-            'url' => 'Url',
+            'url' => 'Website',
             'post_id' => 'Post',
         );
     }
@@ -113,8 +111,20 @@ class Comment extends CActiveRecord
      * @param string $className active record class name.
      * @return Comment the static model class
      */
-    public static function model($className=__CLASS__)
+    public static function model($className = __CLASS__)
     {
         return parent::model($className);
+    }
+
+    protected function beforeSave()
+    {
+        if (parent::beforeSave()) {
+            if ($this->isNewRecord) {
+                $this->create_time = time();
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 }
