@@ -120,7 +120,7 @@ class Lookup extends CActiveRecord
 
     private static function loadItems($type)
     {
-        self::$item[$type] = [];
+        self::$items[$type] = [];
         $models = self::model()->findAll([
             'condition' => 'type=:type',
             'params' => [':type' => $type],
