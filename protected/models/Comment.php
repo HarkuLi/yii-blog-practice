@@ -141,6 +141,14 @@ class Comment extends CActiveRecord
         }
     }
 
+    /**
+     * @return integer the number of comments that are pending approval
+     */
+    public function getPendingCommentCount()
+    {
+        return $this->count('status='.self::STATUS_PENDING);
+    }
+
     public function approve()
     {
         $this->status = Comment::STATUS_APPROVED;
