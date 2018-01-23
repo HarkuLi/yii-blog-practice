@@ -12,6 +12,12 @@
         $this->widget('UserMenu');
     }
     ?>
+
+    <?php
+    $this->widget('TagCloud', [
+        'maxTags' => Yii::app()->params['tagCloudCount']
+    ]);
+    ?>
     </div><!-- sidebar -->
 </div>
 <?php $this->endContent(); ?>
