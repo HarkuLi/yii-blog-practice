@@ -155,6 +155,15 @@ class Comment extends CActiveRecord
         $this->update(['status']);
     }
 
+    public function findRecentComments($limit = 10)
+    {
+        return $this->with('post')->findAll([
+            'condition' => 't.status='.self::STATUS_APPROVED,
+            'order' => 't.create_time DESC',
+            'limit' => $limit
+        ]);
+    }
+
     protected function beforeSave()
     {
         if (parent::beforeSave()) {
