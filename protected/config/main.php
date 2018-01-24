@@ -9,6 +9,8 @@ return array(
     'basePath'=>dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
     'name'=>'My Web Application',
 
+    'defaultController' => 'post',
+
     // preloading 'log' component
     'preload'=>array('log'),
 
@@ -46,6 +48,13 @@ return array(
                 'posts/<tag:.*?>' => 'post/index',
                 '<controller:\w+>/<action:\w+>' => '<controller>/<action>',
             ),
+        ),
+
+        // db schema caching
+        'cache'=>array(
+            'class'=>'CDbCache',
+            // the connectionID "db" means the db defined in components
+            'connectionID'=>'db'
         ),
 
         // database settings are configured in database.php
